@@ -1,0 +1,65 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 2
+  tags:
+  - Ground
+  - DeathSprite
+  - Resurrect
+  - SpawnPoint
+  - SceneTriggerNext
+  - SceneTriggerPrevious
+  - Mushroom
+  - Projectile
+  - Poison
+  - Enemies
+  - IcicleDamage
+  - IcicleWarning
+  - Fire
+  - Ice
+  - Location1
+  - Location2
+  - Boss
+  - CaveSounds
+  - GameMusic
+  - Transform
+  - PhoenixProjectile
+  - Barrier
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - Ground
+  - Water
+  - UI
+  - Enemies
+  - EnemyLogic
+  - Mushroom
+  - Ice
+  - Projectile
+  - Player
+  - Boss
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Default
+    uniqueID: 0
+    locked: 0

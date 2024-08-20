@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/StartMenu.unity
+    guid: 11e1147cb71e4ed46a445e0867713bfc
+  - enabled: 1
+    path: Assets/Scenes/Sanctuary1Left.unity
+    guid: c1ef0ebd15cd68d47bc2b50d8b63746e
+  - enabled: 1
+    path: Assets/Scenes/Sanctuary1Right.unity
+    guid: 1f3d3f92e9c9e6443a2c0552cee79e99
+  - enabled: 1
+    path: Assets/Scenes/Room1Left.unity
+    guid: 299480e35382f4d4b8cb0d1435f64323
+  - enabled: 1
+    path: Assets/Scenes/Room1Right.unity
+    guid: d2fc87c509dabd14ebd4b47c1a062a71
+  - enabled: 1
+    path: Assets/Scenes/Room2Left.unity
+    guid: e9313179c7ff6954091166d391195a6b
+  - enabled: 1
+    path: Assets/Scenes/Room2Right.unity
+    guid: 6b715ddb03ddedb45acb745900175ae3
+  - enabled: 1
+    path: Assets/Scenes/Room3Left.unity
+    guid: 997db23dca5886147bdf52a12bf47e83
+  - enabled: 1
+    path: Assets/Scenes/Room3Right.unity
+    guid: 4146c8ab57e52c6458b360f0e16decd1
+  - enabled: 1
+    path: Assets/Scenes/Sanctuary2Left.unity
+    guid: 3003b810d351c6c4a95d9679cd26275c
+  - enabled: 1
+    path: Assets/Scenes/Sanctuary2Right.unity
+    guid: 8d3ad4bcdc3285d418eb20debc682954
+  - enabled: 1
+    path: Assets/Scenes/BossRoom.unity
+    guid: bcc626f861f63184794b6ba2516b115f
+  - enabled: 1
+    path: Assets/Scenes/GameOver.unity
+    guid: f48fbcd1840d9a344b9b81f49b605b3d
+  - enabled: 1
+    path: Assets/Scenes/WinScreen.unity
+    guid: 5a97b6087c4476540873fe2259e7d94a
+  m_configObjects: {}
