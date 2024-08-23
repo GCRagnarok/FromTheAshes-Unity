@@ -21311,6 +21311,10 @@ PrefabInstance:
       value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 2755211972776824805, guid: 5a6b8a6a7bab41e4fab2ae51c6ba85d4, type: 3}
+      propertyPath: m_GravityScale
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2755211972776824805, guid: 5a6b8a6a7bab41e4fab2ae51c6ba85d4, type: 3}
       propertyPath: m_CollisionDetection
       value: 1
       objectReference: {fileID: 0}
@@ -21387,6 +21391,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 895729089}
     - target: {fileID: 2755211972776824810, guid: 5a6b8a6a7bab41e4fab2ae51c6ba85d4, type: 3}
+      propertyPath: jumpForce
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 2755211972776824810, guid: 5a6b8a6a7bab41e4fab2ae51c6ba85d4, type: 3}
       propertyPath: emptyHeart
       value: 
       objectReference: {fileID: 21300000, guid: b9d206e9a8b808d45b824e73d5f8df9b, type: 3}
@@ -21416,19 +21424,35 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2755211972776824810, guid: 5a6b8a6a7bab41e4fab2ae51c6ba85d4, type: 3}
       propertyPath: riseMultiplier
-      value: 2
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 2755211972776824810, guid: 5a6b8a6a7bab41e4fab2ae51c6ba85d4, type: 3}
       propertyPath: extraJumpsValue
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2755211972776824810, guid: 5a6b8a6a7bab41e4fab2ae51c6ba85d4, type: 3}
+      propertyPath: minJumpVelocity
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 2755211972776824810, guid: 5a6b8a6a7bab41e4fab2ae51c6ba85d4, type: 3}
+      propertyPath: reducedHangTime
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 2755211972776824810, guid: 5a6b8a6a7bab41e4fab2ae51c6ba85d4, type: 3}
       propertyPath: hearts.Array.size
       value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 2755211972776824810, guid: 5a6b8a6a7bab41e4fab2ae51c6ba85d4, type: 3}
+      propertyPath: lowJumpMultiplier
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 2755211972776824810, guid: 5a6b8a6a7bab41e4fab2ae51c6ba85d4, type: 3}
       propertyPath: startTimeBtwShots
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2755211972776824810, guid: 5a6b8a6a7bab41e4fab2ae51c6ba85d4, type: 3}
+      propertyPath: fallSpeedMultiplier
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 2755211972776824810, guid: 5a6b8a6a7bab41e4fab2ae51c6ba85d4, type: 3}
       propertyPath: hearts.Array.data[0]

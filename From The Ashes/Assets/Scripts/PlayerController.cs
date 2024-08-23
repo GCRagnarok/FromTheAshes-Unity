@@ -16,9 +16,9 @@ public class PlayerController : MonoBehaviour
     public float flySpeedY;
     public float dashSpeedX;
     public float jumpForce;
-    public float fallMultiplier;
-    public float riseMultiplier;
+    public float fallSpeedMultiplier;
     public float lowJumpMultiplier;
+    public float minJumpVelocity;
     public float dashSpeed;
     private float dashTime;
     public float startDashTime;
@@ -182,7 +182,7 @@ public class PlayerController : MonoBehaviour
     {
         DoubleJump();
 
-        Dash();
+        DashCooldown();
 
         CheckDirection();
 
@@ -218,8 +218,6 @@ public class PlayerController : MonoBehaviour
 
         Shoot();
 
-        RiseMultiplier();
-
         if (currentHealth == maxHealth && travellerForm == true)
         {
             healUI.SetActive(false);
@@ -235,7 +233,7 @@ public class PlayerController : MonoBehaviour
 
         WallJump();
 
-        BetterJump();
+        FallSpeed();
 
         WallSlideFriction();
 
@@ -351,22 +349,17 @@ public class PlayerController : MonoBehaviour
         anim.SetBool("IsDoubleJumping", false);
     }
     //allows control over fall, low jump and rise multipliers for better jumping
-    void BetterJump()
+    void FallSpeed()
     {
-        if (rb.velocity.y < 0)
+        if (rb.velocity.y < minJumpVelocity)
         {
-            rb.velocity += Vector2.up * Physics2D.gravity.y * (fallMultiplier - 1) * Time.deltaTime;
+            rb.velocity += Vector2.up * Physics2D.gravity.y * (fallSpeedMultiplier - 1) * Time.deltaTime;
             anim.SetBool("Jumped", false);
             anim.SetBool("IsFalling", true);
-
         }
         else if (rb.velocity.y > 0 && !Input.GetButton("Jump"))
         {
-            rb.velocity += Vector2.up * Physics2D.gravity.y * (lowJumpMultiplier - 1) * Time.deltaTime;
-        }
-        else if (rb.velocity.y > 0 && isAttacking == false)
-        {
-            rb.velocity += Vector2.up * Physics2D.gravity.y * (riseMultiplier - 1) * Time.deltaTime;
+            rb.velocity += Vector2.up * Physics2D.gravity.y * (fallSpeedMultiplier - 1) * Time.deltaTime;
         }
     }
     //defines wallJump
@@ -442,7 +435,8 @@ public class PlayerController : MonoBehaviour
         wallJump = false;
     }
     //dash
-    void Dash()
+
+    void DashCooldown()
     {
         if (Time.time > nextDashTime)
         {
@@ -453,30 +447,35 @@ public class PlayerController : MonoBehaviour
             else
             {
                 dashTime -= Time.deltaTime;
-
-                if (Input.GetButtonDown("Fire1r") && facingRight && canDash == true)
-                {
-                    anim.SetBool("IsDashing", true);
-                    dashing = true;
-                    FindObjectOfType<AudioManager>().Play("Dash");
-                    rb.constraints = RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
-                    nextDashTime = Time.time + dashCooldownTime;
-                    Invoke("SetDashToFalse", 0.4f);
-                    Debug.Log("Dash ability used, cooldown started");
-                }
-                else if (Input.GetButtonDown("Fire1l") && !facingRight && canDash == true)
-                {
-                    anim.SetBool("IsDashing", true);
-                    dashing = true;
-                    FindObjectOfType<AudioManager>().Play("Dash");
-                    rb.constraints = RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
-                    nextDashTime = Time.time + dashCooldownTime;
-                    Invoke("SetDashToFalse", 0.4f);
-                    Debug.Log("Dash ability used, cooldown started");
-                }
+                Dash();
             }
         }
     }
+
+    void Dash()
+    {
+        if (Input.GetButtonDown("Fire1r") && facingRight && canDash == true)
+        {
+            anim.SetBool("IsDashing", true);
+            dashing = true;
+            FindObjectOfType<AudioManager>().Play("Dash");
+            rb.constraints = RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
+            nextDashTime = Time.time + dashCooldownTime;
+            Invoke("SetDashToFalse", 0.4f);
+            Debug.Log("Dash ability used, cooldown started");
+        }
+        else if (Input.GetButtonDown("Fire1l") && !facingRight && canDash == true)
+        {
+            anim.SetBool("IsDashing", true);
+            dashing = true;
+            FindObjectOfType<AudioManager>().Play("Dash");
+            rb.constraints = RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
+            nextDashTime = Time.time + dashCooldownTime;
+            Invoke("SetDashToFalse", 0.4f);
+            Debug.Log("Dash ability used, cooldown started");
+        }
+    }
+
     void SetDashToFalse()
     {
         anim.SetBool("IsDashing", false);
@@ -1325,18 +1324,6 @@ public class PlayerController : MonoBehaviour
             currentHealth = maxHealth;
         }
 
-    }
-
-    void RiseMultiplier()
-    {
-        if (isAttacking == true && isGrounded == false)
-        {
-            riseMultiplier = 10;
-        }
-        else if (isAttacking == false && isGrounded == true)
-        {
-            riseMultiplier = 2;
-        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

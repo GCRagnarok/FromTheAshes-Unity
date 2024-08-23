@@ -112,9 +112,9 @@ MonoBehaviour:
   flySpeedY: 10
   dashSpeedX: 15
   jumpForce: 11
-  fallMultiplier: 7
-  riseMultiplier: 2
-  lowJumpMultiplier: 7
+  fallSpeedMultiplier: 7
+  lowJumpMultiplier: 0
+  minJumpVelocity: 6
   dashSpeed: 200
   startDashTime: 0.1
   dashCooldownTime: 0.6
@@ -127,6 +127,9 @@ MonoBehaviour:
   knockupForce: 15
   wallSlideSpeed: 3.5
   countdown: 60
+  maxHealth: 4
+  currentHealth: 4
+  startTimeBtwShots: 0
   canMove: 0
   canJump: 1
   canDash: 0
@@ -149,10 +152,9 @@ MonoBehaviour:
   travellerForm: 0
   mushroomBounce: 0
   inTrigger: 0
+  transformed: 0
   extraJumpsValue: 0
   attackDamage: 25
-  maxHealth: 4
-  currentHealth: 4
   spawnLocation: 1
   enemiesDefeated: 0
   numOfHearts: 4
@@ -161,6 +163,7 @@ MonoBehaviour:
   attackPointLR: {fileID: 2755211974312047089}
   attackPointUP: {fileID: 2755211973781379092}
   attackPointDOWN: {fileID: 2755211973454837734}
+  firePoint: {fileID: 0}
   whatIsGround:
     serializedVersion: 2
     m_Bits: 8
@@ -184,9 +187,16 @@ MonoBehaviour:
   boss: {fileID: 2933930180917420469, guid: 765c1576724c4344ea8b742e65ae03fa, type: 3}
   healUI: {fileID: 0}
   resurrectUI: {fileID: 0}
+  healthBarUI: {fileID: 0}
+  heart1: {fileID: 0}
+  heart2: {fileID: 0}
+  heart3: {fileID: 0}
+  heart4: {fileID: 0}
+  projectile: {fileID: 0}
   hearts: []
   fullHeart: {fileID: 0}
   emptyHeart: {fileID: 0}
+  healthBar: {fileID: 0}
 --- !u!50 &2755211972776824805
 Rigidbody2D:
   serializedVersion: 4
