@@ -19,6 +19,10 @@ public class PlayerController : MonoBehaviour
     public float fallSpeedMultiplier;
     public float lowJumpMultiplier;
     public float minJumpVelocity;
+    public float coyoteTime = 0.15f;
+    public float coyoteTimeCounter;
+    public float jumpBufferTime = 0.2f;
+    private float jumpBufferCounter;
     public float dashSpeed;
     private float dashTime;
     public float startDashTime;
@@ -130,17 +134,17 @@ public class PlayerController : MonoBehaviour
 
         canTakeDamage = true;
         
-        if(phoenixForm == false)
+        if(!phoenixForm)
         {
             travellerForm = true;
         }
-        else if(phoenixForm == true)
+        else if(phoenixForm)
         {
             anim.SetBool("IsPhoenix", true);
             anim.SetBool("IsDead", true);
         }
 
-        if(travellerForm == true)
+        if(travellerForm)
         {
             canJump = true;
 
@@ -159,7 +163,7 @@ public class PlayerController : MonoBehaviour
 
         transformed = false;
 
-        if(phoenixForm == true)
+        if(phoenixForm)
         {
             healthBarUI.SetActive(true);
             heart1.SetActive(false);
@@ -167,7 +171,7 @@ public class PlayerController : MonoBehaviour
             heart3.SetActive(false);
             heart4.SetActive(false);
         }
-        if(travellerForm == true)
+        if(travellerForm)
         {
             healthBarUI.SetActive(false);
             heart1.SetActive(true);
@@ -180,7 +184,7 @@ public class PlayerController : MonoBehaviour
     }
     void Update()
     {
-        DoubleJump();
+        Jump();
 
         DashCooldown();
 
@@ -218,7 +222,7 @@ public class PlayerController : MonoBehaviour
 
         Shoot();
 
-        if (currentHealth == maxHealth && travellerForm == true)
+        if (currentHealth == maxHealth && travellerForm)
         {
             healUI.SetActive(false);
             resurrectUI.SetActive(false);
@@ -245,38 +249,38 @@ public class PlayerController : MonoBehaviour
     //allows horizontal movement
     void Move()
     {
-        if (canMove == true && isDead == false && travellerForm == true) 
+        if (canMove && !isDead && travellerForm) 
         {
             moveDirectionX = Input.GetAxis("Horizontal");
             attackDirectionY = Input.GetAxis("Vertical");
             rb.velocity = new Vector2(moveDirectionX * walkSpeedX, rb.velocity.y);
 
-            if (canMove == true && isGrounded == true)
+            if (canMove && isGrounded)
             {
                 anim.SetFloat("Speed", Mathf.Abs(moveDirectionX));   
             }
         }
 
-        if (canMove == true && isDead == true && phoenixForm == true)
+        if (canMove && isDead&& phoenixForm)
         {
             moveDirectionX = Input.GetAxis("Horizontal");
             moveDirectionY = Input.GetAxis("Vertical");
             rb.velocity = new Vector2(moveDirectionY * flySpeedX, rb.velocity.y);
             rb.velocity = new Vector2(moveDirectionX * flySpeedY, rb.velocity.x);
 
-            if (canMove == true)
+            if (canMove)
             {
                 anim.SetFloat("Speed", Mathf.Abs(moveDirectionX));
             }
         }
 
-        if (dashing == true && facingRight && isDead == false && travellerForm == true)
+        if (dashing && facingRight && !isDead && travellerForm)
         {
             moveDirectionX = 1f;
             rb.velocity = new Vector2(moveDirectionX * dashSpeedX, rb.velocity.y);
         }
 
-        else if (dashing == true && !facingRight && isDead == false && travellerForm == true)
+        else if (dashing && !facingRight && !isDead && travellerForm)
         {
             moveDirectionX = -1f;
             rb.velocity = new Vector2(moveDirectionX * dashSpeedX, rb.velocity.y);
@@ -293,7 +297,7 @@ public class PlayerController : MonoBehaviour
     //checks if wallsliding
     void CheckIfWallSliding()
     {
-        if (isTouchingLeftWall | isTouchingRightWall && !isGrounded && rb.velocity.y < 0 && isDead == false)
+        if (isTouchingLeftWall | isTouchingRightWall && !isGrounded && rb.velocity.y < 0 && !isDead)
         {
             isWallSliding = true;
             FindObjectOfType<AudioManager>().Play("Wallslide");
@@ -305,40 +309,38 @@ public class PlayerController : MonoBehaviour
             anim.SetBool("IsWallSliding", false);
         }
     }
-    //double jump
-    void DoubleJump()
+    //jump
+    void Jump()
     {
-        if (isGrounded == true && isDead == false)
+        if (isGrounded && !isDead)
         {
-            extraJumps = extraJumpsValue;
+            coyoteTimeCounter = coyoteTime;
         }
-        if (canJump == true)
+        else if (isFalling)
         {
-            if (Input.GetButtonDown("Jump") && extraJumps > 0 && isDead == false)
-            {
-                anim.SetBool("Jumped", true);
-                rb.velocity = Vector2.up * jumpForce;
-                Invoke("SetJumpToFalse", 0.05f);
-                extraJumps--;
-                canMove = true;
-                Debug.Log("Double Jump enabled");
-                
-                if (Input.GetButtonDown("Jump") && !isGrounded && !isWallSliding && isDead == false)
-                {
-                    anim.SetBool("Jumped", true);
-                    isDoubleJumping = true;
-                    Invoke("SetDoubleJumpToFalse", 0.05f);
-                    Debug.Log("Double Jump Used");
-                }
-            }
-            else if (Input.GetButtonDown("Jump") && extraJumps == 0 && isGrounded == true && isDead == false)
-            {
-                anim.SetBool("Jumped", true);
-                rb.velocity = Vector2.up * jumpForce;
-                FindObjectOfType<AudioManager>().Play("Jump");
-                Invoke("SetJumpToFalse", 0.05f);
-                Debug.Log("Double Jump disabled");
-            }
+            coyoteTimeCounter -= Time.deltaTime;
+        }
+        else
+        {
+            coyoteTimeCounter = 0;
+        }
+
+        if (Input.GetButtonDown("Jump"))
+        {
+            jumpBufferCounter = jumpBufferTime;
+        }
+        else
+        {
+            jumpBufferCounter -= Time.deltaTime;
+        }
+
+        if (canJump && jumpBufferCounter > 0 && extraJumps == 0 && coyoteTimeCounter > 0 && !isDead)
+        {
+            anim.SetBool("Jumped", true);
+            rb.velocity = Vector2.up * jumpForce;
+            FindObjectOfType<AudioManager>().Play("Jump");
+            Invoke("SetJumpToFalse", 0.05f);
+            Debug.Log("Double Jump disabled");
         }
     }
 
@@ -360,6 +362,8 @@ public class PlayerController : MonoBehaviour
         else if (rb.velocity.y > 0 && !Input.GetButton("Jump"))
         {
             rb.velocity += Vector2.up * Physics2D.gravity.y * (fallSpeedMultiplier - 1) * Time.deltaTime;
+            anim.SetBool("Jumped", false);
+            anim.SetBool("IsFalling", true);
         }
     }
     //defines wallJump
@@ -409,13 +413,13 @@ public class PlayerController : MonoBehaviour
     //wall jumping
     void WallJump()
     {
-        if (wallJump == true)
+        if (wallJump)
         {
             extraJumps = extraJumpsValue;
             canMove = false;
             canJump = true;
         }
-        else if (isTouchingLeftWall || isTouchingRightWall == true || isWallSliding == true || isGrounded == true)
+        else if (isTouchingLeftWall || isTouchingRightWall || isWallSliding || isGrounded)
         {
             canMove = true;
         }
@@ -423,7 +427,7 @@ public class PlayerController : MonoBehaviour
         {
             canJump = true;
         }
-        if (wallJump && travellerForm == true)
+        if (wallJump && travellerForm)
         {
             rb.velocity = new Vector2(walkSpeedX * touchingLeftOrRightWall, jumpForce);
             Invoke("SetWallJumpToFalse", 0.08f);
@@ -454,7 +458,7 @@ public class PlayerController : MonoBehaviour
 
     void Dash()
     {
-        if (Input.GetButtonDown("Fire1r") && facingRight && canDash == true)
+        if (Input.GetButtonDown("Fire1r") && facingRight && canDash)
         {
             anim.SetBool("IsDashing", true);
             dashing = true;
@@ -464,7 +468,7 @@ public class PlayerController : MonoBehaviour
             Invoke("SetDashToFalse", 0.4f);
             Debug.Log("Dash ability used, cooldown started");
         }
-        else if (Input.GetButtonDown("Fire1l") && !facingRight && canDash == true)
+        else if (Input.GetButtonDown("Fire1l") && !facingRight && canDash)
         {
             anim.SetBool("IsDashing", true);
             dashing = true;
@@ -486,26 +490,26 @@ public class PlayerController : MonoBehaviour
     }
     void CheckDirection()
     {
-        if (facingRight == false && moveDirectionX > 0 && isTouchingLeftWall == false && isTouchingRightWall == false)
+        if (!facingRight && moveDirectionX > 0 && !isTouchingLeftWall && !isTouchingRightWall)
         {
             Flip();
             Debug.Log("facing right");
         }
-        if (facingRight == true && moveDirectionX < 0 && isTouchingLeftWall == false && isTouchingRightWall == false)
+        if (facingRight && moveDirectionX < 0 && !isTouchingLeftWall && !isTouchingRightWall)
         {
             Flip();
             Debug.Log("facing left");
         }
-        if (isTouchingSemiSolid == true)
+        if (isTouchingSemiSolid)
         {
             Debug.Log("noflip");
         }
-        if (isTouchingLeftWall == true && facingRight == false && dashing == false && isGrounded == false)
+        if (isTouchingLeftWall && !facingRight && !dashing && !isGrounded)
         {
             Flip();
             Debug.Log("leftwallflip");
         }
-        if (isTouchingRightWall == true && facingRight == true && dashing == false && isGrounded == false)
+        if (isTouchingRightWall && facingRight && !dashing && !isGrounded)
         {
             Flip();
             Debug.Log("leftrightflip");
@@ -518,7 +522,7 @@ public class PlayerController : MonoBehaviour
         {
 
             //Attack LR
-            if (Input.GetButtonDown("Attack") && attackDirectionY == 0 && canAttack == true)
+            if (Input.GetButtonDown("Attack") && attackDirectionY == 0 && canAttack)
             {
                 FindObjectOfType<AudioManager>().Play("AttackLR");
 
@@ -592,7 +596,7 @@ public class PlayerController : MonoBehaviour
         if (Time.time >= nextAttackTime)
         {
             //Attack Upwards
-            if (Input.GetButtonDown("Attack") && attackDirectionY == 1 && canAttack == true)
+            if (Input.GetButtonDown("Attack") && attackDirectionY == 1 && canAttack)
             {
                 FindObjectOfType<AudioManager>().Play("AttackUP");
 
@@ -662,7 +666,7 @@ public class PlayerController : MonoBehaviour
     {
         if (Time.time >= nextAttackTime)
         {
-            if (Input.GetButtonDown("Attack") && attackDirectionY == -1 && canAttack == true)
+            if (Input.GetButtonDown("Attack") && attackDirectionY == -1 && canAttack)
             {
                 FindObjectOfType<AudioManager>().Play("AttackDOWN");
 
@@ -733,7 +737,7 @@ public class PlayerController : MonoBehaviour
             enemy.GetComponent<EnemyStats>().TakeDamage(attackDamage);
 
             //Knockback if facing right
-            if (facingRight == true)
+            if (facingRight)
             {
                 attacking = true;
                 canMove = false;
@@ -745,7 +749,7 @@ public class PlayerController : MonoBehaviour
             }
 
             //Knockback if facing left
-            if (facingRight == false)
+            if (!facingRight)
             {
                 attacking = true;
                 canMove = false;
@@ -762,7 +766,7 @@ public class PlayerController : MonoBehaviour
             Debug.Log("We hit " + ground.name);
 
             //Knockback if facing right
-            if (facingRight == true)
+            if (facingRight)
             {
                 attacking = true;
                 canMove = false;
@@ -774,7 +778,7 @@ public class PlayerController : MonoBehaviour
             }
 
             //Knockback if facing left
-            if (facingRight == false)
+            if (!facingRight)
             {
                 attacking = true;
                 canMove = false;
@@ -789,7 +793,7 @@ public class PlayerController : MonoBehaviour
         foreach (Collider2D mushroom in hitMushroomLR)
         {
             //Knockback if facing right
-            if (facingRight == true)
+            if (facingRight)
             {
                 FindObjectOfType<AudioManager>().Play("Boing");
                 mushroomBounce = true;
@@ -804,7 +808,7 @@ public class PlayerController : MonoBehaviour
             }
 
             //Knockback if facing left
-            if (facingRight == false)
+            if (!facingRight)
             {
                 FindObjectOfType<AudioManager>().Play("Boing");
                 mushroomBounce = true;
@@ -821,7 +825,7 @@ public class PlayerController : MonoBehaviour
 
         foreach (Collider2D projectile in hitProjectileLR)
         {
-            if(facingRight == true)
+            if(facingRight)
             {
                 Destroy(projectile.gameObject);
                 attacking = true;
@@ -833,7 +837,7 @@ public class PlayerController : MonoBehaviour
                 Debug.Log("Attack cooldown started");
                 Invoke("SetMushroomBounceToFalse", 0.01f);
             }
-            if(facingRight == false)
+            if(!facingRight)
             {
                 Destroy(projectile.gameObject);
                 attacking = true;
@@ -850,7 +854,7 @@ public class PlayerController : MonoBehaviour
 
         foreach (Collider2D ice in hitIceLR)
         {
-            if (facingRight == true)
+            if (facingRight)
             {
                 Destroy(ice.gameObject);
                 attacking = true;
@@ -862,7 +866,7 @@ public class PlayerController : MonoBehaviour
                 Debug.Log("Attack cooldown started");
                 Invoke("SetMushroomBounceToFalse", 0.01f);
             }
-            if (facingRight == false)
+            if (!facingRight)
             {
                 Destroy(ice.gameObject);
                 attacking = true;
@@ -882,7 +886,7 @@ public class PlayerController : MonoBehaviour
             boss.GetComponent<BossHealth>().TakeDamage(attackDamage);
 
             //Knockback if facing right
-            if (facingRight == true)
+            if (facingRight)
             {
                 attacking = true;
                 canMove = false;
@@ -894,7 +898,7 @@ public class PlayerController : MonoBehaviour
             }
 
             //Knockback if facing left
-            if (facingRight == false)
+            if (facingRight)
             {
                 attacking = true;
                 canMove = false;
@@ -955,7 +959,7 @@ public class PlayerController : MonoBehaviour
         foreach (Collider2D mushroom in hitMushroomUP)
         {
             //Knockback if facing right
-            if (facingRight == true)
+            if (facingRight)
             {
                 FindObjectOfType<AudioManager>().Play("Boing");
                 mushroomBounce = true;
@@ -970,7 +974,7 @@ public class PlayerController : MonoBehaviour
             }
 
             //Knockback if facing left
-            if (facingRight == false)
+            if (!facingRight)
             {
                 FindObjectOfType<AudioManager>().Play("Boing");
                 mushroomBounce = true;
@@ -1091,7 +1095,7 @@ public class PlayerController : MonoBehaviour
 
     void Shoot()
     {
-        if(timeBtwShots <= 0 && phoenixForm == true && Input.GetButtonDown("Attack"))
+        if(timeBtwShots <= 0 && phoenixForm && Input.GetButtonDown("Attack"))
         {
             print("shoot");
             Instantiate(projectile, firePoint.position, firePoint.rotation);
@@ -1137,13 +1141,13 @@ public class PlayerController : MonoBehaviour
     }
     void CheckIfFalling()
     {
-        if (isGrounded == false && isWallSliding == false && rb.velocity.y < 0)
+        if (!isGrounded && !isWallSliding && rb.velocity.y < 0)
         {
             isFalling = true;
             anim.SetBool("IsFalling", true);
         }
 
-        else if (isGrounded == true)
+        else if (isGrounded)
         {
             isFalling = false;
             anim.SetBool("IsFalling", false);
@@ -1152,17 +1156,17 @@ public class PlayerController : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
-        if (canTakeDamage == true)
+        if (canTakeDamage)
         {
             currentHealth -= damage;
             FindObjectOfType<AudioManager>().Play("PlayerDamage");
 
-            if (travellerForm == true)
+            if (travellerForm)
             {
                 anim.SetTrigger("Hit");
                 print("hit");
             }
-            else if (phoenixForm == true)
+            else if (phoenixForm)
             {
                 anim.SetTrigger("HitPhoenix");
                 print("hitphoenix");
@@ -1171,35 +1175,35 @@ public class PlayerController : MonoBehaviour
             anim.SetBool("IsHit", true);
             canTakeDamage = false;
 
-            if (isGrounded == true && facingRight == true)
+            if (isGrounded && facingRight)
             {
                 canMove = false;
                 rb.velocity = new Vector2(knockbackForce * -10f, 10f);
                 Invoke("SetCanMoveToTrue", 0.1f);
                 Invoke("SetCanTakeDamageToTrue", 0.5f);
             }
-            else if (isGrounded == false && facingRight == true)
+            else if (!isGrounded && facingRight)
             {
                 canMove = false;
                 rb.velocity = new Vector2(knockbackForce * -2f, 2f);
                 Invoke("SetCanMoveToTrue", 0.1f);
                 Invoke("SetCanTakeDamageToTrue", 0.5f);
             }
-            else if (isGrounded == true && facingRight == false)
+            else if (isGrounded && !facingRight)
             {
                 canMove = false;
                 rb.velocity = new Vector2(knockbackForce * 10f, 10f);
                 Invoke("SetCanMoveToTrue", 0.1f);
                 Invoke("SetCanTakeDamageToTrue", 0.5f);
             }
-            else if (isGrounded == false && facingRight == false)
+            else if (!isGrounded && !facingRight)
             {
                 canMove = false;
                 rb.velocity = new Vector2(knockbackForce * 2f, 2f);
                 Invoke("SetCanMoveToTrue", 0.1f);
                 Invoke("SetCanTakeDamageToTrue", 0.5f);
             }
-            if (currentHealth <= 0 && isDead == false)
+            if (currentHealth <= 0 && !isDead)
             {
                 canTakeDamage = false;
                 isDead = true;
@@ -1215,7 +1219,7 @@ public class PlayerController : MonoBehaviour
     public void Die()
     {
         {
-            if(isDead == true)
+            if(isDead)
             {
                 FindObjectOfType<AudioManager>().Play("Burn");
                 canAttack = false;
@@ -1232,7 +1236,7 @@ public class PlayerController : MonoBehaviour
 
     public void ChangeForm()
     {
-        if (isDead == true)
+        if (isDead)
         {
            FindObjectOfType<AudioManager>().Play("PhoenixCry");
            phoenixForm = true;
@@ -1248,7 +1252,7 @@ public class PlayerController : MonoBehaviour
            heart4.SetActive(false);
 
         }
-        else if (isDead == false)
+        else if (!isDead)
         {
            phoenixForm = false;
            travellerForm = true;
@@ -1265,7 +1269,7 @@ public class PlayerController : MonoBehaviour
 
     public void DamageOverTime()
     {
-        if(phoenixForm == true)
+        if(phoenixForm)
         {
             currentHealth -= 0.15f * Time.deltaTime;
         }
@@ -1278,7 +1282,7 @@ public class PlayerController : MonoBehaviour
 
     public void GameOver()
     {
-        if (phoenixForm == true && currentHealth <= 0)
+        if (phoenixForm && currentHealth <= 0)
         {
             canMove = false;
             print("Game Over");
@@ -1296,7 +1300,7 @@ public class PlayerController : MonoBehaviour
         {
             currentHealth = maxHealth;
         }
-        if(currentHealth <= 0 && isDead == false) 
+        if(currentHealth <= 0 && !isDead) 
         {
             currentHealth = maxHealth;
         }
@@ -1304,7 +1308,7 @@ public class PlayerController : MonoBehaviour
 
     private void Resurrect()
     {
-        if (inTrigger == true && Input.GetButtonDown("Resurrect") && phoenixForm == true)
+        if (inTrigger && Input.GetButtonDown("Resurrect") && phoenixForm)
         {
             FindObjectOfType<AudioManager>().Play("Burn2");
             FindObjectOfType<AudioManager>().Play("Health");
@@ -1317,7 +1321,7 @@ public class PlayerController : MonoBehaviour
             ChangeForm();
         }
 
-        if(inTrigger == true && Input.GetButtonDown("Resurrect") && travellerForm == true && currentHealth <= 3)
+        if(inTrigger && Input.GetButtonDown("Resurrect") && travellerForm && currentHealth <= 3)
         {
             FindObjectOfType<AudioManager>().Play("Burn2");
             FindObjectOfType<AudioManager>().Play("Health");
@@ -1340,18 +1344,18 @@ public class PlayerController : MonoBehaviour
             PlayerPrefs.SetInt("spawnlocationvalue", spawnLocation);
         }
 
-        if (collision.tag == ("Resurrect") && phoenixForm == true)
+        if (collision.tag == ("Resurrect") && phoenixForm)
         {
             inTrigger = true;
             resurrectUI.SetActive(true);
         }
 
-        if (collision.tag == ("Resurrect") && travellerForm == true && currentHealth < maxHealth)
+        if (collision.tag == ("Resurrect") && travellerForm && currentHealth < maxHealth)
         {
             inTrigger = true;
             healUI.SetActive(true);
         }
-        if (collision.tag == ("Transform") && transformed == false)
+        if (collision.tag == ("Transform") && !transformed)
         {
             isDead = true;
             canDash = false;
@@ -1374,7 +1378,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.tag == ("Mushroom") && facingRight == true && isGrounded == false)
+        if (collision.gameObject.tag == ("Mushroom") && facingRight && !isGrounded)
         {
             FindObjectOfType<AudioManager>().Play("Boing");
             mushroomBounce = true;
@@ -1383,7 +1387,7 @@ public class PlayerController : MonoBehaviour
             Invoke("SetCanMoveToTrue", 0.1f);
             Invoke("SetMushroomBounceToFalse", 0.01f);
         }
-        if (collision.gameObject.tag == ("Mushroom") && facingRight == false && isGrounded == false)
+        if (collision.gameObject.tag == ("Mushroom") && !facingRight && !isGrounded)
         {
             FindObjectOfType<AudioManager>().Play("Boing");
             mushroomBounce = true;
@@ -1397,7 +1401,7 @@ public class PlayerController : MonoBehaviour
             print("hit");
             TakeDamage(1);
         }
-        if(collision.gameObject.tag == ("Ground") && isDead == false)
+        if(collision.gameObject.tag == ("Ground") && !isDead)
         {
             FindObjectOfType<AudioManager>().Play("Land");
         }
